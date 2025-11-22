@@ -3,307 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glassmorphism Calculator</title>
+    <title>Pro Glass Calculator</title>
     <style>
-        /* --- CSS Styling --- */
+        /* --- Global Styles --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
         body {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          background-color: #AB61E4;
-          min-height: 100vh;
-          overflow: hidden;
-          color: #fff;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #1a1a2e; /* خلفية داكنة لإبراز الزجاج */
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
         }
 
+        /* --- الخلفيات الملونة المتحركة --- */
+        .background-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .shape {
+            position: absolute;
+            filter: blur(50px);
+            z-index: 1;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+        .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #ff00cc; border-radius: 50%; }
+        .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #3333ff; border-radius: 50%; animation-delay: -5s; }
+        .shape-3 { top: 40%; left: 40%; width: 300px; height: 300px; background: #00ffcc; border-radius: 50%; animation-duration: 15s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(30px, 50px) rotate(10deg); }
+        }
+
+        /* --- هيكل الآلة الحاسبة --- */
         .calculator {
-          --header-bg: rgba(255,255,255,.2);
-          --body-bg: rgba(255,255,255,.3);
-          --button-bg: rgba(255,255,255,.2);
-          --button-bg-hover: rgba(255,255,255,.3);
-          --button-highlight-bg: rgba(255,255,255,.5);
-          --button-highlight-bg-hover: rgba(255,255,255,.3);
-          transition: all 0.8s cubic-bezier(0.075, 0.82, 0.165, 1) 0s;
-          position: relative;
-          width: 280px;
-          box-shadow: rgb(24 32 79 / 25%) 0px 40px 80px, rgb(255 255 255 / 50%) 0px 0px 0px 0.5px inset;
-          border-radius: 15px;
-          z-index: 10;
+            position: relative;
+            z-index: 10;
+            width: 400px; /* حجم أكبر */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            transition: transform 0.3s;
         }
 
-        .calculator:hover { margin-bottom: 5px; }
-        .calculator:hover ~ .calculator-back { transform: skewY(18deg); width: 35%; }
-
-        .calculator.dark {
-          --header-bg: rgba(2,14,39,.2);
-          --body-bg: rgba(2,14,39,.3);
-          --button-bg: rgba(2,14,39,.2);
-          --button-bg-hover: rgba(255,255,255,.1);
-          --button-highlight-bg: rgba(2,14,39,.5);
-          --button-highlight-bg-hover: rgba(255,255,255,.15);
+        .calculator:hover {
+            transform: scale(1.02); /* تكبير بسيط عند مرور الماوس */
         }
 
-        .calculator-header {
-          position: relative;
-          background-color: var(--header-bg);
-          padding: 30px 30px 15px 30px;
-          text-align: right;
-          border-top-left-radius: 15px;
-          border-top-right-radius: 15px;
-          backdrop-filter: blur(40px);
-          -webkit-backdrop-filter: blur(40px);
-          box-shadow: inset 0px 2px 1px rgba(255, 255, 255, .1);
+        /* --- الشاشة --- */
+        .display {
+            margin-bottom: 20px;
+            text-align: right;
+            padding: 0 10px;
+        }
+        .display .previous {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            min-height: 24px;
+        }
+        .display .current {
+            font-size: 3.5rem; /* خط ضخم للنتيجة */
+            color: #fff;
+            font-weight: 700;
+            word-wrap: break-word;
+            word-break: break-all;
         }
 
-        .calculator-body {
-          position: relative;
-          background-color: var(--body-bg);
-          padding: 15px;
-          border-bottom-left-radius: 15px;
-          border-bottom-right-radius: 15px;
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          min-height: 250px;
+        /* --- الأزرار --- */
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px; /* مسافات أوسع بين الأزرار */
         }
 
-        .calculator-operation {
-          font-size: 18px;
-          margin-bottom: 4px;
-          min-height: 24px;
-          opacity: 0.8;
+        button {
+            height: 70px; /* أزرار أطول */
+            border-radius: 15px;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.5rem;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: inset 2px 2px 5px rgba(255,255,255,0.1), inset -3px -3px 7px rgba(0,0,0,0.2);
+            font-weight: 500;
         }
 
-        .calculator-operation-result {
-          font-size: 42px;
-          font-weight: bold;
+        button:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        .calculator-button {
-          position: relative;
-          display: block;
-          height: 100%;
-          background-color: var(--button-bg);
-          font-size: 20px;
-          cursor: pointer;
-          color: #fff;
-          border: 1px solid rgba(255, 255, 255, 0);
-          user-select: none;
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
-          transition: all .2s ease-in-out;
-          z-index: 2;
+        button:active {
+            transform: scale(0.95);
         }
 
-        .calculator-button:hover, .calculator-button:focus {
-          box-shadow: 0px 10px 25px rgba(4, 37, 100, 0.12);
-          border-radius: 4px;
-          background-color: var(--button-bg-hover);
-          border-color: rgba(255, 255, 255, .15);
-          z-index: 5;
-          transform: scale(1.25);
-          outline: none;
+        /* ألوان خاصة للأزرار */
+        .btn-operator {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+        .btn-scientific {
+            font-size: 1.2rem;
+            color: #ffcc00;
+        }
+        .btn-equal {
+            background: rgba(0, 255, 204, 0.3);
+            grid-column: span 2; /* زر يساوي يأخذ مساحة زرين */
+            border: 1px solid rgba(0, 255, 204, 0.4);
+        }
+        .btn-equal:hover {
+            background: rgba(0, 255, 204, 0.5);
+        }
+        .btn-clear {
+            color: #ff3366;
         }
 
-        .calculator-button.equal { grid-row-start: span 2; grid-column-start: 4; }
-        .calculator-button.highlight { background-color: var(--button-highlight-bg); }
-        .calculator-button.highlight:hover { background-color: var(--button-highlight-bg-hover); }
-
-        .calculator-button-wrapper {
-          position: absolute;
-          top: calc(117px + 15px);
-          right: 15px;
-          bottom: 15px;
-          left: 15px;
-          display: grid;
-          grid-gap: 2px;
-          grid-template-columns: repeat(4, auto);
-          grid-template-rows: repeat(5, 45px);
-        }
-
-        .calculator-back {
-          position: absolute;
-          top: 0; right: 0; bottom: 0; left: 0;
-          width: 85%;
-          background-image: linear-gradient(rgb(189, 29, 140) 0%, rgb(122, 65, 206) 100%);
-          border-radius: 15px;
-          transform: skewY(8deg);
-          transform-origin: left top;
-          transition: all 0.8s cubic-bezier(0.075, 0.82, 0.165, 1) 0s;
-          z-index: 5;
-        }
-
-        .title {
-          position: absolute;
-          top: 0; right: 0; bottom: 0; left: 0;
-          font-size: calc(62px + 1vw);
-          font-weight: 900;
-          color: rgba(31, 62, 90, 1);
-          letter-spacing: -.065em;
-          user-select: none;
-        }
-        .title:nth-child(2) { mix-blend-mode: screen; opacity: .75; }
-
-        .title-wrapper {
-          position: absolute;
-          top: 100%; left: 0;
-          transform: rotate(-90deg) translate(-80px, -65px);
-          mix-blend-mode: difference;
-          backdrop-filter: opacity(1);
-          z-index: 10;
-        }
-
-        .bg-item { position: absolute; }
-
-        .toggle-theme {
-          position: absolute; top: 0; left: 0;
-          font-size: 13px; padding: 8px 12px;
-          background-color: var(--button-bg);
-          border-top-left-radius: 15px; border-bottom-right-radius: 15px;
-          color: #fff; cursor: pointer; border: none; outline: none;
-          backdrop-filter: blur(4px); transition: all .1s ease-in-out;
-          z-index: 20;
-        }
-        .toggle-theme:hover { transform: scale(1.1); background-color: var(--button-bg-hover); }
-
-        #bg-1 {filter: blur(10px)} #bg-2 {filter: blur(36px)} #bg-4 {filter: blur(50px)}
-        #bg-6 {filter: blur(40px)} #bg-7 {filter: blur(30px)} #bg-9 {filter: blur(20px)}
     </style>
 </head>
 <body>
 
-<div id="bg-0" class="bg-item" style="top: 0; right: 0; bottom: 0; left: 0;"><svg width="100%" height="100%" fill="none"><rect y="0.4375" width="100%" height="100%" fill="#AB61E4"/></svg></div>
-<div id="bg-1" class="bg-item" style="bottom: 0; left: 0;"><svg width="371" height="476" viewBox="0 0 371 476" fill="none"><path d="M371 0H-60V538H371V0Z" fill="#F56CF0"/></svg></div>
-<div id="bg-2" class="bg-item" style="bottom: -15%; right: calc(35% - 217px);"><svg width="478" height="430" viewBox="0 0 478 430" fill="none"><path d="M523 0H0V480H523V0Z" fill="#D2578B"/></svg></div>
-<div id="bg-4" class="bg-item" style="top: 0; right: 0; bottom: 0;"><svg width="332" height="600" viewBox="0 0 332 600" fill="none"><path d="M338.5 -169L676.68 26V416L338.5 611L0.316986 416V26L338.5 -169Z" fill="#AB61E4"/></svg></div>
-<div id="bg-6" class="bg-item" style="top: 0; left: calc(50% - 281px);"><svg width="563" height="393" viewBox="0 0 563 393" fill="none"><path d="M281.5 393C436.968 393 563 270.774 563 120C563 -30.7737 436.968 -153 281.5 -153C126.032 -153 0 -30.7737 0 120C0 270.774 126.032 393 281.5 393Z" fill="#7A8DF4"/></svg></div>
-
-<main class="calculator-wrapper">
-  <div class="title-wrapper">
-    <div class="title">Glassmorphism</div>
-    <div class="title">Glassmorphism</div>
-  </div>
-
-  <section class="calculator">
-    <button id="toggler" class="toggle-theme">
-      <span id="dark" style="display: block;">🌙</span>
-      <span id="light" style="display: none;">☀️</span>
-    </button>
-    <header class="calculator-header">
-      <div class="calculator-operation"></div>
-      <div class="calculator-operation-result">0</div>
-    </header>
-    <main class="calculator-body"></main>
-    <div class="calculator-button-wrapper">
-      <button type="button" class="calculator-button"><span>C</span></button>
-      <button type="button" class="calculator-button"><span>/</span></button>
-      <button type="button" class="calculator-button"><span>*</span></button>
-      <button type="button" class="calculator-button"><span>⌫</span></button>
-
-      <button type="button" class="calculator-button highlight"><span>7</span></button>
-      <button type="button" class="calculator-button highlight"><span>8</span></button>
-      <button type="button" class="calculator-button highlight"><span>9</span></button>
-      <button type="button" class="calculator-button"><span>-</span></button>
-
-      <button type="button" class="calculator-button highlight"><span>4</span></button>
-      <button type="button" class="calculator-button highlight"><span>5</span></button>
-      <button type="button" class="calculator-button highlight"><span>6</span></button>
-      <button type="button" class="calculator-button"><span>+</span></button>
-
-      <button type="button" class="calculator-button highlight"><span>1</span></button>
-      <button type="button" class="calculator-button highlight"><span>2</span></button>
-      <button type="button" class="calculator-button highlight"><span>3</span></button>
-      <button type="button" class="calculator-button equal"><span>=</span></button>
-
-      <button type="button" class="calculator-button highlight"><span>%</span></button>
-      <button type="button" class="calculator-button highlight"><span>0</span></button>
-      <button type="button" class="calculator-button highlight"><span>.</span></button>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
     </div>
-  </section>
-  <div class="calculator-back"></div>
-</main>
 
-<script>
-/* --- JavaScript Logic --- */
-let $toggler = document.getElementById('toggler'),
-    $calculator = document.querySelector('.calculator');
+    <div class="calculator">
+        <div class="display">
+            <div class="previous" id="prev-display"></div>
+            <div class="current" id="curr-display">0</div>
+        </div>
+        
+        <div class="buttons-grid">
+            <button class="btn-scientific" onclick="calculateScientific('sqrt')">√</button>
+            <button class="btn-scientific" onclick="calculateScientific('sqr')">x²</button>
+            <button class="btn-scientific" onclick="appendNumber('3.14159')">π</button>
+            <button class="btn-scientific" onclick="appendNumber('2.71828')">e</button>
 
-$toggler.addEventListener('click', function() {
-  $calculator.classList.toggle('dark');
-  if($calculator.classList.contains('dark')) {
-    $toggler.querySelector('#light').style.display = 'block';
-    $toggler.querySelector('#dark').style.display = 'none';
-  } else {
-    $toggler.querySelector('#light').style.display = 'none';
-    $toggler.querySelector('#dark').style.display = 'block';
-  }
-});
+            <button class="btn-clear" onclick="clearDisplay()">C</button>
+            <button class="btn-clear" onclick="deleteLast()">⌫</button>
+            <button class="btn-operator" onclick="chooseOperation('%')">%</button>
+            <button class="btn-operator" onclick="chooseOperation('/')">÷</button>
 
-const operationScreen = document.querySelector('.calculator-operation');
-const resultScreen = document.querySelector('.calculator-operation-result');
-const buttons = document.querySelectorAll('.calculator-button');
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="btn-operator" onclick="chooseOperation('*')">×</button>
 
-let currentInput = ""; 
-let history = "";     
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="btn-operator" onclick="chooseOperation('-')">-</button>
 
-function updateScreen(value, isResult = false) {
-    resultScreen.innerText = value;
-    if(!isResult) operationScreen.innerText = history;
-}
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button class="btn-operator" onclick="chooseOperation('+')">+</button>
 
-buttons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-        const btnText = btn.innerText.trim();
+            <button onclick="appendNumber('0')">0</button>
+            <button onclick="appendNumber('.')">.</button>
+            <button class="btn-equal" onclick="compute()">=</button>
+        </div>
+    </div>
 
-        // Clear
-        if (btnText === 'C') {
-            currentInput = ""; history = "";
-            updateScreen("0"); operationScreen.innerText = "";
-            return;
+    <script>
+        // المتغيرات
+        const currDisplay = document.getElementById('curr-display');
+        const prevDisplay = document.getElementById('prev-display');
+        let currentOperand = '';
+        let previousOperand = '';
+        let operation = undefined;
+
+        // إضافة رقم للشاشة
+        function appendNumber(number) {
+            if (number === '.' && currentOperand.includes('.')) return;
+            if (currentOperand.length > 12) return; // حد أقصى للأرقام
+            currentOperand = currentOperand.toString() + number.toString();
+            updateDisplay();
         }
 
-        // Backspace
-        if (btnText === '⌫') {
-            currentInput = currentInput.toString().slice(0, -1);
-            if (currentInput === "") currentInput = "0";
-            updateScreen(currentInput);
-            return;
-        }
-
-        // Calculate (=)
-        if (btnText === '=') {
-            try {
-                if(currentInput === "" && history === "") return;
-                let expression = history + currentInput;
-                // Safe evaluation
-                let finalResult = eval(expression); 
-                operationScreen.innerText = expression.replace('*', '×').replace('/', '÷');
-                updateScreen(finalResult, true);
-                currentInput = finalResult;
-                history = "";
-            } catch (error) {
-                updateScreen("Error", true);
-                currentInput = "";
+        // اختيار العملية الحسابية
+        function chooseOperation(op) {
+            if (currentOperand === '') return;
+            if (previousOperand !== '') {
+                compute();
             }
-            return;
+            operation = op;
+            previousOperand = currentOperand;
+            currentOperand = '';
+            updateDisplay();
         }
 
-        // Operators & Numbers
-        const operators = ['+', '-', '*', '/', '%'];
+        // الحساب النهائي
+        function compute() {
+            let computation;
+            const prev = parseFloat(previousOperand);
+            const current = parseFloat(currentOperand);
+            if (isNaN(prev) || isNaN(current)) return;
 
-        if (operators.includes(btnText)) {
-            if(currentInput === "" && history === "") return;
-            history += currentInput + btnText;
-            currentInput = "";
-            operationScreen.innerText = history;
-        } else {
-            if (currentInput === "0" && btnText !== ".") currentInput = btnText;
-            else currentInput += btnText;
-            updateScreen(currentInput);
+            switch (operation) {
+                case '+': computation = prev + current; break;
+                case '-': computation = prev - current; break;
+                case '*': computation = prev * current; break;
+                case '/': computation = prev / current; break;
+                case '%': computation = prev % current; break;
+                default: return;
+            }
+            currentOperand = computation;
+            operation = undefined;
+            previousOperand = '';
+            updateDisplay();
         }
-    });
-});
-</script>
+
+        // العمليات العلمية الفورية
+        function calculateScientific(type) {
+            if(currentOperand === '') return;
+            let current = parseFloat(currentOperand);
+            
+            if(type === 'sqrt') {
+                current = Math.sqrt(current);
+            } else if (type === 'sqr') {
+                current = Math.pow(current, 2);
+            }
+            
+            currentOperand = current;
+            updateDisplay();
+        }
+
+        // تحديث الشاشة
+        function updateDisplay() {
+            currDisplay.innerText = currentOperand === '' ? '0' : formatNumber(currentOperand);
+            if (operation != null) {
+                prevDisplay.innerText = `${formatNumber(previousOperand)} ${operation}`;
+            } else {
+                prevDisplay.innerText = '';
+            }
+        }
+
+        // تنسيق الأرقام (إضافة الفواصل)
+        function formatNumber(number) {
+            const stringNumber = number.toString();
+            const integerDigits = parseFloat(stringNumber.split('.')[0]);
+            const decimalDigits = stringNumber.split('.')[1];
+            let integerDisplay;
+            if (isNaN(integerDigits)) {
+                integerDisplay = '';
+            } else {
+                integerDisplay = integerDigits.toLocaleString('en', { maximumFractionDigits: 0 });
+            }
+            if (decimalDigits != null) {
+                return `${integerDisplay}.${decimalDigits}`;
+            } else {
+                return integerDisplay;
+            }
+        }
+
+        // المسح الكامل
+        function clearDisplay() {
+            currentOperand = '';
+            previousOperand = '';
+            operation = undefined;
+            updateDisplay();
+        }
+
+        // مسح آخر رقم
+        function deleteLast() {
+            currentOperand = currentOperand.toString().slice(0, -1);
+            updateDisplay();
+        }
+    </script>
 </body>
 </html>
